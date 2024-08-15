@@ -1,31 +1,21 @@
-import json
 from pathlib import Path
-import os
+import json
 
-# Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-# 환경변수
+# 환경변수 가져오기
 with open(BASE_DIR / ".config_secret" / "secret.json") as f:
     config_secret_str = f.read()
 
 SECRET = json.loads(config_secret_str)
 
-# Quick-start development settings - unsuitable for production
-# See https://docs.djangoproject.com/en/5.0/howto/deployment/checklist/
+SECRET_KEY = SECRET["DJANGO_SECRET_KEY"]
 
-# SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = SECRET.get("DJANGO_SECRET_KEY")
-
-# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
+ALLOWED_HOSTS = []
 
-ALLOWED_HOSTS = ["*"]
-
-
-# Application definition
-
+# installed app
 DJANGO_APPS = [
     "django.contrib.admin",
     "django.contrib.auth",
@@ -41,14 +31,9 @@ CUSTOM_APPS = [
     "reviews",
 ]
 
-THIRD_PARTY_APPS = [
-    "django_extensions",
-    "django_summernote",
-    "django_cleanup",
-]
+THIRD_PARTY_APPS = ["django_extensions", "rest_framework", "django_cleanup"]
 
 INSTALLED_APPS = DJANGO_APPS + CUSTOM_APPS + THIRD_PARTY_APPS
-
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
@@ -62,6 +47,7 @@ MIDDLEWARE = [
 
 ROOT_URLCONF = "config.urls"
 
+# Templates
 TEMPLATES = [
     {
         "BACKEND": "django.template.backends.django.DjangoTemplates",
@@ -87,6 +73,7 @@ STATIC_ROOT = BASE_DIR / ".static_root"
 MEDIA_URL = "media/"
 MEDIA_ROOT = BASE_DIR / "media"
 
+# WSGI
 WSGI_APPLICATION = "config.wsgi.application"
 
 
@@ -106,15 +93,18 @@ DATABASES = {
 REST_FRAMEWORK = {
     "DEFAULT_PAGINATION_CLASS": "rest_framework.pagination.PageNumberPagination",
     "PAGE_SIZE": 10,
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    "DEFAULT_PERMISSION_CLASSES": (
+        "rest_framework.permissions.IsAuthenticatedOrReadOnly",
+    ),
 }
 
 # Authentication
 AUTH_USER_MODEL = "users.User"
 
-
 # Password validation
-# https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators
-
 AUTH_PASSWORD_VALIDATORS = [
     {
         "NAME": "django.contrib.auth.password_validation.UserAttributeSimilarityValidator",
@@ -130,10 +120,7 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-
 # Internationalization
-# https://docs.djangoproject.com/en/5.1/topics/i18n/
-
 LANGUAGE_CODE = "en-us"
 
 TIME_ZONE = "UTC"
