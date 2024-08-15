@@ -1,7 +1,8 @@
+from datetime import timedelta
 from pathlib import Path
 import json
 
-BASE_DIR = Path(__file__).resolve().parent.parent
+BASE_DIR = Path(__file__).resolve().parent.parent.parent
 
 # 환경변수 가져오기
 with open(BASE_DIR / ".config_secret" / "secret.json") as f:
@@ -10,10 +11,6 @@ with open(BASE_DIR / ".config_secret" / "secret.json") as f:
 SECRET = json.loads(config_secret_str)
 
 SECRET_KEY = SECRET["DJANGO_SECRET_KEY"]
-
-DEBUG = True
-
-ALLOWED_HOSTS = []
 
 # installed app
 DJANGO_APPS = [
@@ -31,7 +28,12 @@ CUSTOM_APPS = [
     "reviews",
 ]
 
-THIRD_PARTY_APPS = ["django_extensions", "rest_framework", "django_cleanup"]
+THIRD_PARTY_APPS = [
+    "django_extensions",
+    "rest_framework",
+    "django_cleanup",
+    "drf_yasg",
+]
 
 INSTALLED_APPS = DJANGO_APPS + CUSTOM_APPS + THIRD_PARTY_APPS
 
@@ -64,30 +66,8 @@ TEMPLATES = [
     },
 ]
 
-# Static
-STATIC_URL = "static/"
-STATIC_DIRS = [BASE_DIR / "static"]
-STATIC_ROOT = BASE_DIR / ".static_root"
-
-# Media
-MEDIA_URL = "media/"
-MEDIA_ROOT = BASE_DIR / "media"
-
 # WSGI
 WSGI_APPLICATION = "config.wsgi.application"
-
-
-# Database
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.mysql",
-        "NAME": SECRET["DB"]["NAME"],  # 데이터베이스 이름
-        "USER": SECRET["DB"]["USER"],  # 사용자 이름
-        "PASSWORD": SECRET["DB"]["PASSWORD"],  # 비밀번호
-        "HOST": SECRET["DB"]["HOST"],  # 데이터베이스 서버 주소
-        "PORT": SECRET["DB"]["PORT"],  # MySQL의 기본 포트
-    }
-}
 
 # Rest Framework
 REST_FRAMEWORK = {
@@ -95,6 +75,7 @@ REST_FRAMEWORK = {
     "PAGE_SIZE": 10,
     "DEFAULT_AUTHENTICATION_CLASSES": (
         "rest_framework.authentication.SessionAuthentication",
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
     ),
     "DEFAULT_PERMISSION_CLASSES": (
         "rest_framework.permissions.IsAuthenticatedOrReadOnly",
@@ -103,6 +84,19 @@ REST_FRAMEWORK = {
 
 # Authentication
 AUTH_USER_MODEL = "users.User"
+
+# simple jwt
+
+SIMPLE_JWT = {
+    # 엑세스 토큰의 유효 기간 설정
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=60),
+    # 리프레쉬 토큰의 유효 기간 설정
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=1),
+    # jwt 로그인 시 last_login 업데이트 설정
+    "UPDATE_LAST_LOGIN": True,
+    # jwt 암호화 알고리즘
+    "ALGORITHM": "HS256",
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
